@@ -1,0 +1,73 @@
+openapi: 3.0.3
+info:
+  title: Sample API
+  description: Device manager for Tasmota devices via MQTT [Source](https://github.com/mbezuidenhout/tdm).
+  version: 0.1.0
+  contact:
+    email: "marius.bezuidenhout@gmail.com"
+servers:
+  - url: http://localhost:8080/v3
+    description: Optional server description, e.g. Main (production) server
+  - url: http://staging-api.example.com
+    description: Optional server description, e.g. Internal staging server for testing
+tags:
+- name: "Tasmota"
+  description: "A project by Theo Arends"
+  externalDocs:
+    description: "Find out more"
+    url: "https://tasmota.github.io"
+- name: "mqtt"
+  description: "MQTT options"
+paths:
+  /mqtt:
+    post:
+      summary: Sets the MQTT host options.
+      responses:
+        '200':
+          description: Successful connection
+          content: {
+            "application/json": {}
+          }
+      requestBody: {
+        description: "user to add to the system",
+        content: {
+          "application/json": {
+            schema: {
+              $ref: "#/components/schemas/MQTTOptions"
+            }
+          },
+          examples: {
+
+          }
+        }
+      }
+  /devices:
+    get:
+      summary: Returns a list of tasmota devices.
+      responses:
+        '200':    # status code
+          description: A JSON array of devices
+          content:
+            application/json:
+              schema: 
+                type: array
+                items: 
+                  type: string
+components: {
+  schemas: {
+    MQTTOptions: {
+      type: "object",
+      properties: {
+        host: {
+          type: "string",
+        },
+        username: {
+          type: "string"
+        },
+        password: {
+          type: "string"
+        }
+      }
+    }
+  }
+}
