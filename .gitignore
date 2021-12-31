@@ -15,3 +15,6 @@
 bin/
 pkg/
 .vscode/
+
+src/config.yml
+dist/ssl/

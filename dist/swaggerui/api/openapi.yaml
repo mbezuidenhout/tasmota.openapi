@@ -6,9 +6,9 @@ info:
   contact:
     email: "marius.bezuidenhout@gmail.com"
 servers:
-  - url: http://localhost:8080/v3
+  - url: https://localhost:43443/v3
     description: Optional server description, e.g. Main (production) server
-  - url: http://staging-api.example.com
+  - url: https://staging-api.example.com
     description: Optional server description, e.g. Internal staging server for testing
 tags:
 - name: "Tasmota"
