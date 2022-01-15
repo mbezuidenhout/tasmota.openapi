@@ -1,73 +1,138 @@
 openapi: 3.0.3
 info:
-  title: Sample API
-  description: Device manager for Tasmota devices via MQTT [Source](https://github.com/mbezuidenhout/tdm).
+  title: Tasmota Device Manager API
+  description: >-
+    Device manager for Tasmota devices via MQTT
+    [Source](https://github.com/mbezuidenhout/tasmota.mqtt.device.manager).
   version: 0.1.0
   contact:
-    email: "marius.bezuidenhout@gmail.com"
+    email: marius.bezuidenhout@gmail.com
 servers:
   - url: https://localhost:43443/v3
     description: Optional server description, e.g. Main (production) server
-  - url: https://staging-api.example.com
+  - url: http://staging-api.example.com
     description: Optional server description, e.g. Internal staging server for testing
 tags:
-- name: "Tasmota"
-  description: "A project by Theo Arends"
-  externalDocs:
-    description: "Find out more"
-    url: "https://tasmota.github.io"
-- name: "mqtt"
-  description: "MQTT options"
+  - name: Session
+    description: MQTT and session management
+  - name: Device
+    description: Request and update device details
+    externalDocs:
+      description: Find out more
+      url: https://tasmota.github.io
 paths:
-  /mqtt:
+  /mqtt/connect:
     post:
-      summary: Sets the MQTT host options.
+      security: []   # No security
+      tags:
+        - Session
+      summary: Sets the MQTT host options
       responses:
         '200':
           description: Successful connection
-          content: {
-            "application/json": {}
-          }
-      requestBody: {
-        description: "user to add to the system",
-        content: {
-          "application/json": {
-            schema: {
-              $ref: "#/components/schemas/MQTTOptions"
-            }
-          },
-          examples: {
-
-          }
-        }
-      }
-  /devices:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Session'
+      requestBody:
+        description: MQTT host in the format tcp://host:port with username and password
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MQTTOptions'
+          examples: {}
+  /mqtt:
     get:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Session
+      summary: Get MQTT session status
+      responses:
+        '200':
+          description: MQTT session is connected
+        '401':
+          description: Session is not connected
+  /mqtt/disconnect:
+    get:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Session
+      summary: Disconnect from MQTT server
+      responses:
+        '200':
+          description: Disconnected
+  /devices:
+    post:
+      security: 
+        - ApiKeyAuth: []
+      tags:
+        - Device
       summary: Returns a list of tasmota devices.
       responses:
-        '200':    # status code
+        '200':
           description: A JSON array of devices
           content:
             application/json:
-              schema: 
-                type: array
-                items: 
-                  type: string
-components: {
-  schemas: {
-    MQTTOptions: {
-      type: "object",
-      properties: {
-        host: {
-          type: "string",
-        },
-        username: {
-          type: "string"
-        },
-        password: {
-          type: "string"
-        }
-      }
-    }
-  }
-}
+              schema:
+                type: object
+                additionalProperties:
+                  $ref: '#/components/schemas/Device'
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+components:
+  securitySchemes:
+    ApiKeyAuth:        # arbitrary name for the security scheme
+      type: apiKey
+      in: header       # can be "header", "query" or "cookie"
+      name: X-API-KEY  # name of the header, query parameter or cookie
+  schemas:
+    MQTTOptions:
+      type: object
+      properties:
+        host:
+          type: string
+        username:
+          type: string
+        password:
+          type: string
+      required:
+        - host
+        - username
+        - password
+    Session:
+      properties:
+        apikey:
+          type: string
+    Device:
+      type: object
+      properties:
+        topic:
+          type: string
+          description: Unique device topic
+        fulltopic:
+          type: string
+          description: Full topic format
+        online:
+          type: boolean
+          description: Device status
+        network:
+          $ref: '#/components/schemas/Network'
+      required:
+        - topic
+        - fulltopic
+    Network:
+      type: object
+      properties:
+        ipaddress:
+          type: string
+        hostname:
+          type: string
+  responses:
+    UnauthorizedError:
+      description: API key is missing or invalid
+      headers:
+        WWW_Authenticate:
+          schema:
+            type: string

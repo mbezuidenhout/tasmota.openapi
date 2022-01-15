@@ -13,11 +13,18 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 )
 
-func DevicesGet(w http.ResponseWriter, r *http.Request) {
+func DevicesPost(w http.ResponseWriter, r *http.Request) {
+	apiKey := r.Header.Get("X-Api-Key")
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
-	data, _ := json.Marshal(manager.GetDevices())
-	fmt.Fprintln(w, string(data))
+	if managers[apiKey] == nil {
+		w.WriteHeader(http.StatusUnauthorized)
+	} else {
+		managers[apiKey].lastUpdate = time.Now()
+		w.WriteHeader(http.StatusOK)
+		data, _ := json.Marshal(managers[apiKey].GetDevices())
+		fmt.Fprintln(w, string(data))
+	}
 }

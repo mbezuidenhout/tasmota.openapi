@@ -2,9 +2,11 @@ package main
 
 import (
 	"crypto/tls"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	sw "github.com/mbezuidenhout/tasmota.openapi/go"
 	"gopkg.in/yaml.v2"
@@ -50,6 +52,25 @@ func main() {
 			Certificates: []tls.Certificate{cert},
 		},
 	}
+
+	ticker := time.NewTicker(5 * time.Minute)
+	quit := make(chan struct{})
+	go func() {
+		for {
+			select {
+			case <-ticker.C:
+				i := sw.CleanupConnections()
+				if i > 0 {
+					fmt.Printf("Closing %d connection(s)", i)
+				}
+			case <-quit:
+				ticker.Stop()
+				return
+			}
+		}
+	}()
+
+	// Automatically close connections that are open for more than 15 minutes
 
 	log.Fatal(s.ListenAndServeTLS(config.Certfile, config.Keyfile))
 }

@@ -1,0 +1,5 @@
+# config.yml
+
+port: 43443
+certfile: ./dist/ssl/localhost.crt
+keyfile: ./dist/ssl/localhost.key
