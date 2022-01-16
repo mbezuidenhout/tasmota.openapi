@@ -5,7 +5,7 @@ go 1.17
 require (
 	github.com/eclipse/paho.mqtt.golang v1.3.5
 	github.com/gorilla/mux v1.8.0
-	github.com/mbezuidenhout/tasmota.mqtt.device.manager/v2 v2.0.0-20220104114442-02f5e30c8fa0
+	github.com/mbezuidenhout/tasmota.mqtt.device.manager/v2 v2.0.0-20220115122806-1623e8d93df2
 	gopkg.in/yaml.v2 v2.4.0
 )
 

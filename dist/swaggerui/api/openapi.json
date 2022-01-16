@@ -148,20 +148,20 @@
       "MQTTOptions": {
         "type": "object",
         "properties": {
-          "host": {
+          "Host": {
             "type": "string"
           },
-          "username": {
+          "Username": {
             "type": "string"
           },
-          "password": {
+          "Password": {
             "type": "string"
           }
         },
         "required": [
-          "host",
-          "username",
-          "password"
+          "Host",
+          "Username",
+          "Password"
         ]
       },
       "Session": {
@@ -174,34 +174,58 @@
       "Device": {
         "type": "object",
         "properties": {
-          "topic": {
+          "Topic": {
             "type": "string",
             "description": "Unique device topic"
           },
-          "fulltopic": {
+          "FullTopic": {
             "type": "string",
             "description": "Full topic format"
           },
-          "online": {
+          "Online": {
             "type": "boolean",
             "description": "Device status"
           },
-          "network": {
+          "LoadAvg": {
+            "type": "integer",
+            "description": "Load Average"
+          },
+          "Timezone": {
+            "type": "string",
+            "description": "Timezone offset from GMT"
+          },
+          "StatusNET": {
             "$ref": "#/components/schemas/Network"
           }
         },
         "required": [
-          "topic",
-          "fulltopic"
+          "Topic",
+          "FullTopic",
+          "Online"
         ]
       },
       "Network": {
         "type": "object",
         "properties": {
-          "ipaddress": {
+          "IPAddress": {
             "type": "string"
           },
-          "hostname": {
+          "Hostname": {
+            "type": "string"
+          },
+          "Gateway": {
+            "type": "string"
+          },
+          "Subnetmask": {
+            "type": "string"
+          },
+          "DNSServer1": {
+            "type": "string"
+          },
+          "DNSServer2": {
+            "type": "string"
+          },
+          "Mac": {
             "type": "string"
           }
         }
