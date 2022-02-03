@@ -10,23 +10,20 @@
 package swagger
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
 	"time"
 
-	"github.com/thanhpk/randstr"
-
-	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/gorilla/mux"
 	"github.com/mbezuidenhout/tasmota.mqtt.device.manager/v2"
 )
 
 type MQTTOptions struct {
-	Host     string
-	Username string
-	Password string
+	Host        string
+	Username    string
+	Password    string
+	CustomTopic string
 }
 
 type Route struct {
@@ -98,47 +95,10 @@ func recoverError(w http.ResponseWriter) {
 	}
 }
 
-func MQTTConnectPost(w http.ResponseWriter, r *http.Request) {
-	defer recoverError(w)
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	var p MQTTOptions
-	err := json.NewDecoder(r.Body).Decode(&p)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	mqttClientOptions := mqtt.NewClientOptions()
-	mqttClientOptions.SetUsername(p.Username).SetPassword(p.Password).AddBroker(p.Host)
-	clientID := randstr.Hex(4)
-	mqttClientOptions.SetClientID("TMDM_" + clientID)
-
-	apiKey := randstr.Hex(32)
-
-	manager := tasmota.NewManager(*mqttClientOptions)
-	if manager == nil {
-		w.WriteHeader(http.StatusUnauthorized)
-	} else {
-		managers[apiKey] = &ManagerWithTimes{
-			Manager:    *manager,
-			created:    time.Now(),
-			lastUpdate: time.Now(),
-		}
-		fmt.Printf("Currently serving %d connection(s)", len(managers))
-		w.WriteHeader(http.StatusOK)
-		response := struct {
-			APIKey string `json:"apikey"`
-		}{
-			APIKey: apiKey,
-		}
-		data, _ := json.Marshal(response)
-		fmt.Fprintln(w, string(data))
-	}
-}
-
 var routes = Routes{
 	Route{
 		Name:        "Index",
-		Method:      "GET",
+		Method:      strings.ToUpper("Get"),
 		Pattern:     "/v3/",
 		HandlerFunc: Index,
 	},
@@ -148,6 +108,20 @@ var routes = Routes{
 		Method:      strings.ToUpper("Post"),
 		Pattern:     "/v3/mqtt/connect",
 		HandlerFunc: MQTTConnectPost,
+	},
+
+	Route{
+		Name:        "MqttDisconnectGet",
+		Method:      strings.ToUpper("Get"),
+		Pattern:     "/v3/mqtt/disconnect",
+		HandlerFunc: MQTTDisconnectGet,
+	},
+
+	Route{
+		Name:        "MqttGet",
+		Method:      strings.ToUpper("Get"),
+		Pattern:     "/v3/mqtt",
+		HandlerFunc: MQTTGet,
 	},
 
 	Route{

@@ -34,6 +34,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Session'
+        '503':
+          description: Connection refused
       requestBody:
         description: MQTT host in the format tcp://host:port with username and password
         content:
@@ -96,6 +98,8 @@ components:
         Username:
           type: string
         Password:
+          type: string
+        CustomTopic:
           type: string
       required:
         - Host

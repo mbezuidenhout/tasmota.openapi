@@ -50,6 +50,9 @@
                 }
               }
             }
+          },
+          "503": {
+            "description": "Connection refused"
           }
         },
         "requestBody": {
@@ -155,6 +158,9 @@
             "type": "string"
           },
           "Password": {
+            "type": "string"
+          },
+          "CustomTopic": {
             "type": "string"
           }
         },
