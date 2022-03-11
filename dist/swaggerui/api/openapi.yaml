@@ -83,6 +83,26 @@ paths:
                   $ref: '#/components/schemas/Device'
         '401':
           $ref: "#/components/responses/UnauthorizedError"
+  /device/{deviceTopic}:
+    get:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Device
+      summary: Returns details of tasmota device by topic.
+      parameters:
+        - in: path
+          name: deviceTopic
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: A JSON object of requested device.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Device'
 components:
   securitySchemes:
     ApiKeyAuth:        # arbitrary name for the security scheme
@@ -127,29 +147,51 @@ components:
         Timezone:
           type: string
           description: Timezone offset from GMT
+          pattern: '(\+|\-)\d{2}:\d{2}'
         StatusNET:
           $ref: '#/components/schemas/Network'
+        StatusFWR:
+          $ref: '#/components/schemas/Firmware'
       required:
         - Topic
         - FullTopic
         - Online
+    Firmware:
+      type: object
+      properties:
+        Version:
+          type: string
+        BuildDateTime:
+          type: string
+          pattern: '\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}'
+        Boot:
+          type: integer
+        Hardware:
+          type: string
     Network:
       type: object
       properties:
         IPAddress:
           type: string
+          pattern: '((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))'
         Hostname:
           type: string
+          pattern: '([a-zA-Z0-9\-\.])+'
         Gateway:
           type: string
+          pattern: '((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))'
         Subnetmask:
           type: string
+          pattern: '((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))'
         DNSServer1:
           type: string
+          pattern: '((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))'
         DNSServer2:
           type: string
+          pattern: '((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))'
         Mac:
           type: string
+          pattern: '([0-9A-F]{2}[:-]){5}([0-9A-F]{2})'
   responses:
     UnauthorizedError:
       description: API key is missing or invalid
