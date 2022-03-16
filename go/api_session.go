@@ -68,7 +68,7 @@ func MQTTDisconnectGet(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusUnauthorized)
 	} else {
 		managers[apiKey].MQTTclient.Disconnect(1)
-		w.WriteHeader(http.StatusOK)
+		w.WriteHeader(http.StatusNoContent)
 	}
 	delete(managers, apiKey)
 }

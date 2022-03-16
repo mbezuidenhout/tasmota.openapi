@@ -14,6 +14,8 @@ import (
 	"fmt"
 	"net/http"
 	"time"
+
+	"github.com/gorilla/mux"
 )
 
 func DevicesPost(w http.ResponseWriter, r *http.Request) {
@@ -26,5 +28,24 @@ func DevicesPost(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		data, _ := json.Marshal(managers[apiKey].GetDevices())
 		fmt.Fprintln(w, string(data))
+	}
+}
+
+func DeviceDeviceTopicGet(w http.ResponseWriter, r *http.Request) {
+	apiKey := r.Header.Get("X-Api-Key")
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	if managers[apiKey] == nil {
+		w.WriteHeader(http.StatusUnauthorized)
+	} else {
+		deviceTopic, ok := mux.Vars(r)["deviceTopic"]
+		if !ok {
+			w.WriteHeader(http.StatusUnprocessableEntity)
+		} else {
+			managers[apiKey].lastUpdate = time.Now()
+			w.WriteHeader(http.StatusOK)
+			data, _ := json.Marshal(managers[apiKey].GetDevice(deviceTopic))
+			fmt.Fprintln(w, string(data))
+			fmt.Printf("Context %s", deviceTopic)
+		}
 	}
 }

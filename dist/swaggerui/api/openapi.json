@@ -30,6 +30,10 @@
         "description": "Find out more",
         "url": "https://tasmota.github.io"
       }
+    },
+    {
+      "name": "Sensor",
+      "description": "Request details about sensors"
     }
   ],
   "paths": {
@@ -101,8 +105,11 @@
         ],
         "summary": "Disconnect from MQTT server",
         "responses": {
-          "200": {
+          "204": {
             "description": "Disconnected"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
           }
         }
       }
@@ -169,6 +176,170 @@
                 }
               }
             }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "422": {
+            "description": "Required parameter missing."
+          }
+        }
+      }
+    },
+    "/sensorTypes/{deviceTopic}": {
+      "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "tags": [
+          "Sensor"
+        ],
+        "summary": "Returns an array of sensor types.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "deviceTopic",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A JSON object of requested device.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "422": {
+            "description": "Required parameter missing."
+          }
+        }
+      }
+    },
+    "/sensors/{deviceTopic}": {
+      "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "tags": [
+          "Sensor"
+        ],
+        "summary": "Returns all sensor data from device.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "deviceTopic",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A JSON object of sensor data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "anyOf": [
+                        {
+                          "$ref": "#/components/schemas/Zigbee"
+                        },
+                        {
+                          "$ref": "#/components/schemas/DS18B20"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "422": {
+            "description": "Required parameter missing."
+          }
+        }
+      }
+    },
+    "/sensorType/{deviceTopic}/{sensorType}": {
+      "get": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "tags": [
+          "Sensor"
+        ],
+        "summary": "Returns all data for specific sensor type.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "deviceTopic",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "sensorType",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A JSON object of requested sensor type.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "object",
+                    "oneOf": [
+                      {
+                        "$ref": "#/components/schemas/Zigbee"
+                      },
+                      {
+                        "$ref": "#/components/schemas/DS18B20"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "422": {
+            "description": "Required parameter missing."
           }
         }
       }
@@ -223,6 +394,14 @@
             "type": "string",
             "description": "Full topic format"
           },
+          "Name": {
+            "type": "string",
+            "description": "Device friendly name"
+          },
+          "Module": {
+            "type": "string",
+            "description": "Device module type"
+          },
           "Online": {
             "type": "boolean",
             "description": "Device status"
@@ -247,7 +426,22 @@
           "Topic",
           "FullTopic",
           "Online"
-        ]
+        ],
+        "example": {
+          "Topic": "tasmota-4d9f",
+          "FullTopic": "%prefix%/%topic%",
+          "Name": "Tasmota",
+          "Module": "Sonoff ZbBridge",
+          "Online": true,
+          "LoadAvg": 19,
+          "Timezone": "+02:00",
+          "StatusNET": {
+            "$ref": "#/components/schemas/Network/example"
+          },
+          "StatusFWR": {
+            "$ref": "#/components/schemas/Firmware/example"
+          }
+        }
       },
       "Firmware": {
         "type": "object",
@@ -265,6 +459,12 @@
           "Hardware": {
             "type": "string"
           }
+        },
+        "example": {
+          "Version": "10.1.0(zbbridge)",
+          "BuildDateTime": "2022-02-03T11:33:56",
+          "Boot": 7,
+          "Hardware": "ESP8266EX"
         }
       },
       "Network": {
@@ -297,6 +497,58 @@
           "Mac": {
             "type": "string",
             "pattern": "([0-9A-F]{2}[:-]){5}([0-9A-F]{2})"
+          }
+        },
+        "example": {
+          "IPAddress": "10.0.0.2",
+          "Hostname": "switch01.lan",
+          "Gateway": "10.0.0.1",
+          "Subnetmask": "255.255.255.0",
+          "DNSServer1": "10.0.0.1",
+          "DNSServer2": "8.8.8.8",
+          "Mac": "84:CC:A8:9D:CA:AE"
+        }
+      },
+      "Zigbee": {
+        "type": "object",
+        "properties": {
+          "Device": {
+            "type": "string"
+          },
+          "Name": {
+            "type": "string"
+          },
+          "ModelId": {
+            "type": "string"
+          },
+          "Temperature": {
+            "type": "number"
+          },
+          "Humidity": {
+            "type": "number"
+          },
+          "BatteryPercentage": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "LastSeen": {
+            "type": "integer",
+            "description": "Last seen in seconds since queried"
+          },
+          "Reachable": {
+            "type": "boolean"
+          }
+        }
+      },
+      "DS18B20": {
+        "type": "object",
+        "properties": {
+          "Id": {
+            "type": "string"
+          },
+          "Temperature": {
+            "type": "number"
           }
         }
       }

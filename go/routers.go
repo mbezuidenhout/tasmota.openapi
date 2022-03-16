@@ -103,6 +103,7 @@ var routes = Routes{
 		HandlerFunc: Index,
 	},
 
+	// ----- Start Session -----
 	Route{
 		Name:        "MqttConnectPost",
 		Method:      strings.ToUpper("Post"),
@@ -123,11 +124,42 @@ var routes = Routes{
 		Pattern:     "/v3/mqtt",
 		HandlerFunc: MQTTGet,
 	},
+	// ----- End Session -----
 
+	// ----- Start Devices -----
 	Route{
 		Name:        "DevicesPost",
 		Method:      strings.ToUpper("Post"),
 		Pattern:     "/v3/devices",
 		HandlerFunc: DevicesPost,
 	},
+
+	Route{
+		Name:        "DeviceDeviceTopicGet",
+		Method:      strings.ToUpper("Get"),
+		Pattern:     "/v3/device/{deviceTopic}",
+		HandlerFunc: DeviceDeviceTopicGet,
+	},
+	// ----- End Devices -----
+
+	// ----- Start Sensors -----
+	Route{
+		Name:        "SensorTypesDeviceTopicGet",
+		Method:      strings.ToUpper("Get"),
+		Pattern:     "/v3/sensorTypes/{deviceTopic}",
+		HandlerFunc: SensorTypesDeviceTopicGet,
+	},
+	Route{
+		Name:        "SensorTypeDeviceTopicSensorTypeGet",
+		Method:      strings.ToUpper("Get"),
+		Pattern:     "/v3/sensorType/{deviceTopic}/{sensorType}",
+		HandlerFunc: SensorTypeDeviceTopicSensorTypeGet,
+	},
+	Route{
+		Name:        "SensorsDeviceTopicGet",
+		Method:      strings.ToUpper("Get"),
+		Pattern:     "/v3/sensors/{deviceTopic}",
+		HandlerFunc: SensorsDeviceTopicGet,
+	},
+	// ----- End Sensors -----
 }
