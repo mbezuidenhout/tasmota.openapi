@@ -145,6 +145,35 @@
         }
       }
     },
+    "/device": {
+      "put": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "tags": [
+          "Device"
+        ],
+        "summary": "Change device settings",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "body",
+            "description": "Device object that needs to be updated",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/DeviceSettings"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated"
+          }
+        }
+      }
+    },
     "/device/{deviceTopic}": {
       "get": {
         "security": [
@@ -182,6 +211,48 @@
           },
           "422": {
             "description": "Required parameter missing."
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "tags": [
+          "Device"
+        ],
+        "summary": "Send command and payload to device.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "deviceTopic",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "command",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "payload",
+            "schema": {
+              "type": "string"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sent"
           }
         }
       }
@@ -383,6 +454,19 @@
           }
         }
       },
+      "DeviceSettings": {
+        "type": "object",
+        "properties": {
+          "Topic": {
+            "type": "string",
+            "description": "Unique device topic"
+          },
+          "DeviceName": {
+            "type": "string",
+            "description": "Device friendly name"
+          }
+        }
+      },
       "Device": {
         "type": "object",
         "properties": {
@@ -394,7 +478,7 @@
             "type": "string",
             "description": "Full topic format"
           },
-          "Name": {
+          "DeviceName": {
             "type": "string",
             "description": "Device friendly name"
           },
@@ -414,6 +498,9 @@
             "type": "string",
             "description": "Timezone offset from GMT",
             "pattern": "(\\+|\\-)\\d{2}:\\d{2}"
+          },
+          "Wifi": {
+            "$ref": "#/components/schemas/Wifi"
           },
           "StatusNET": {
             "$ref": "#/components/schemas/Network"
@@ -509,6 +596,33 @@
           "Mac": "84:CC:A8:9D:CA:AE"
         }
       },
+      "Wifi": {
+        "type": "object",
+        "properties": {
+          "SSId": {
+            "type": "string"
+          },
+          "BSSId": {
+            "type": "string"
+          },
+          "Channel": {
+            "type": "integer"
+          },
+          "Mode": {
+            "type": "string"
+          },
+          "Signal": {
+            "type": "integer"
+          }
+        },
+        "example": {
+          "SSId": "MyWifiAP",
+          "BSSid": "00:00:00:00:00:00",
+          "Channel": 9,
+          "Mode": "11n",
+          "Signal": -38
+        }
+      },
       "Zigbee": {
         "type": "object",
         "properties": {
@@ -535,6 +649,10 @@
           "LastSeen": {
             "type": "integer",
             "description": "Last seen in seconds since queried"
+          },
+          "LastSeenEpoch": {
+            "type": "integer",
+            "description": "Last seen at seconds since unix epoch UTC"
           },
           "Reachable": {
             "type": "boolean"

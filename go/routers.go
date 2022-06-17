@@ -140,6 +140,14 @@ var routes = Routes{
 		Pattern:     "/v3/device/{deviceTopic}",
 		HandlerFunc: DeviceDeviceTopicGet,
 	},
+
+	Route{
+		Name:        "DeviceDeviceTopicPost",
+		Method:      strings.ToUpper("Post"),
+		Pattern:     "/v3/device/{deviceTopic}",
+		HandlerFunc: DeviceDeviceTopicPost,
+	},
+
 	// ----- End Devices -----
 
 	// ----- Start Sensors -----

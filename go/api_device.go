@@ -13,9 +13,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
+	"golang.org/x/exp/slices"
 )
 
 func DevicesPost(w http.ResponseWriter, r *http.Request) {
@@ -46,6 +48,33 @@ func DeviceDeviceTopicGet(w http.ResponseWriter, r *http.Request) {
 			data, _ := json.Marshal(managers[apiKey].GetDevice(deviceTopic))
 			fmt.Fprintln(w, string(data))
 			fmt.Printf("Context %s", deviceTopic)
+		}
+	}
+}
+
+func DeviceDeviceTopicPost(w http.ResponseWriter, r *http.Request) {
+	cmndWhiteList := []string{"devicename", "zbname", "zbinfo", "zbpermitjoin", "zbsend"}
+	apiKey := r.Header.Get("X-Api-Key")
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	if managers[apiKey] == nil {
+		w.WriteHeader(http.StatusUnauthorized)
+	} else {
+		deviceTopic, ok1 := mux.Vars(r)["deviceTopic"]
+		command := r.URL.Query().Get("command")
+		payload := r.URL.Query().Get("payload")
+
+		if !ok1 {
+			w.WriteHeader(http.StatusUnprocessableEntity)
+		} else {
+			managers[apiKey].lastUpdate = time.Now()
+			device := managers[apiKey].GetDevice(deviceTopic)
+			if slices.Contains(cmndWhiteList, strings.ToLower(command)) {
+				device.SendCmnd(command, payload)
+				w.WriteHeader(http.StatusOK)
+				fmt.Printf("Context: %s, Command: %s, Payload: %s", deviceTopic, command, payload)
+			} else {
+				w.WriteHeader(http.StatusBadRequest)
+			}
 		}
 	}
 }
