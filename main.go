@@ -9,13 +9,17 @@ import (
 	"time"
 
 	sw "github.com/mbezuidenhout/tasmota.openapi/go"
+	"golang.org/x/exp/slices"
 	"gopkg.in/yaml.v2"
 )
+
+const VERSION = "0.0.1"
 
 type Config struct {
 	Port     string `yaml:"port"`
 	Keyfile  string `yaml:"keyfile"`
 	Certfile string `yaml:"certfile"`
+	Webpath  string `yaml:"webpath,omitempty"`
 }
 
 func NewConfig(configPath string) (*Config, error) {
@@ -37,21 +41,44 @@ func NewConfig(configPath string) (*Config, error) {
 	return config, nil
 }
 
+func printHelp() {
+	fmt.Printf("Usage: %s [-f path-to-config.yml]\n", os.Args[0])
+}
+
 func main() {
-	config, err := NewConfig("config.yml")
+	if slices.Contains(os.Args[1:], "--help") {
+		printHelp()
+		return
+	}
+
+	configFile := "config.yml"
+	if slices.Contains(os.Args, "-f") {
+		pos := slices.Index(os.Args, "-f")
+		configFile = os.Args[pos+1]
+	}
+
+	config, err := NewConfig(configFile)
 	if err != nil {
 		return
 	}
 
 	cert, _ := tls.LoadX509KeyPair(config.Certfile, config.Keyfile)
+	webPath := "./dist/swaggerui"
+
+	if len(config.Webpath) > 0 {
+		webPath = config.Webpath
+	}
+
+	fmt.Printf("Starting %s version %s\n", os.Args[0], VERSION)
 
 	s := &http.Server{
 		Addr:    ":" + config.Port,
-		Handler: sw.NewRouter(),
+		Handler: sw.NewRouter(webPath),
 		TLSConfig: &tls.Config{
 			Certificates: []tls.Certificate{cert},
 		},
 	}
+	fmt.Printf("Listening on %s\n", config.Port)
 
 	ticker := time.NewTicker(5 * time.Minute)
 	quit := make(chan struct{})

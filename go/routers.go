@@ -60,7 +60,7 @@ func CleanupConnections() int {
 	return i
 }
 
-func NewRouter() *mux.Router {
+func NewRouter(webPath string) *mux.Router {
 	router := mux.NewRouter().StrictSlash(true)
 	for _, route := range routes {
 		var handler http.Handler
@@ -73,7 +73,7 @@ func NewRouter() *mux.Router {
 			Name(route.Name).
 			Handler(handler)
 	}
-	router.PathPrefix("/").Handler(http.FileServer(http.Dir("./dist/swaggerui")))
+	router.PathPrefix("/").Handler(http.FileServer(http.Dir(webPath)))
 
 	managers = make(map[string]*ManagerWithTimes)
 

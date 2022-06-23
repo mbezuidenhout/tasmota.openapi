@@ -47,7 +47,7 @@ func MQTTConnectPost(w http.ResponseWriter, r *http.Request) {
 			created:    time.Now(),
 			lastUpdate: time.Now(),
 		}
-		fmt.Printf("Currently serving %d connection(s)", len(managers))
+		fmt.Printf("Currently serving %d connection(s)\n", len(managers))
 		w.WriteHeader(http.StatusOK)
 		response := struct {
 			APIKey string `json:"apikey"`
